@@ -1,0 +1,70 @@
+- hosts: [ target_host ] 
+   become: yes
+   become_user: root
+   tasks:
+     - name: update all packages
+       yum:
+        name: "*"
+        state: latest
+
+     - name: install git
+       yum:
+        name: git
+        state: present
+
+     - name: Install jdk
+       yum:
+        name: java-1.8.0-openjdk
+        state: present
+
+     - name: copy chromedriver
+       copy:
+        src: /usr/local/bin/chromedriver
+        dest: /usr/bin
+
+     - name: download google chrome stable
+       command: wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+
+     - name: add yum signing key
+       ansible.builtin.rpm_key:
+        key: https://dl.google.com/linux/linux_signing_key.pub
+        state: present
+
+     - name: create a repository into repo.d list in the target
+       ansible.builtin.yum_repository:
+        name: google-chrome
+        description: google-chrome repo
+        baseurl: http://dl.google.com/linux/chrome/rpm/stable/$basearch
+        enabled: true
+        gpgcheck: true
+        gpgkey: https://dl.google.com/linux/linux_signing_key.pub
+
+     - name: install google chrome stable
+       ansible.builtin.yum:
+        name: google-chrome-stable
+        state: present
+
+     - name: update all packages
+       yum:
+        name: "*"
+        state: latest
+        update_cache: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
